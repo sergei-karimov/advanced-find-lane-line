@@ -29,6 +29,7 @@ class Line:
         self.curvature = None
         self.deviation = None
 
+
 def warp_image(img, src, dst, size):
     """ Perspective Transform """
     M = cv2.getPerspectiveTransform(src, dst)
@@ -36,6 +37,7 @@ def warp_image(img, src, dst, size):
     warp_img = cv2.warpPerspective(img, M, size, flags=cv2.INTER_LINEAR)
 
     return warp_img, M, Minv
+
 
 def rad_of_curvature(left_line, right_line):
     """ measure radius of curvature  """
@@ -67,6 +69,7 @@ def rad_of_curvature(left_line, right_line):
     left_line.radius_of_curvature = left_curverad
     right_line.radius_of_curvature = right_curverad
 
+
 def smoothing(lines, pre_lines=3):
     # collect lines & print average line
     lines = np.squeeze(lines)
@@ -79,6 +82,7 @@ def smoothing(lines, pre_lines=3):
     avg_line = avg_line / pre_lines
 
     return avg_line
+
 
 def blind_search(b_img, left_line, right_line):
     """

@@ -7,7 +7,7 @@ def imageShow(image, is_gray=False):
 
     plt.figure(figsize=(18, 11))
     if is_gray:
-        plt.imshow(image, aspect='auto', is_gray='gray')
+        plt.imshow(image, aspect='auto', cmap='gray_r')
     else:
         plt.imshow(image, aspect='auto')
 

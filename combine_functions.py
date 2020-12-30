@@ -8,10 +8,6 @@ def sobel_xy(img, orient='x', thresh=(20, 100)):
     The gradient in the x-direction emphasizes edges closer to vertical.
     The gradient in the y-direction emphasizes edges closer to horizontal.
     """
-    # img = exposure.equalize_hist(img)
-    # adaptive histogram equalization
-    # img = exposure.equalize_adapthist(img, clip_limit=0.01)
-
     if orient == 'x':
         abs_sobel = np.absolute(cv2.Sobel(img, cv2.CV_64F, 1, 0))
     if orient == 'y':
