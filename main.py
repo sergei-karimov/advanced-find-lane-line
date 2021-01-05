@@ -5,7 +5,7 @@ from video_processing import video_processing
 def main(image_name, is_image):
     if is_image:
         processing = ImageProcessing()
-        processing.invoke(image_name)
+        processing.invoke(image_name, True)
     else:
         video_processing(image_name)
 
@@ -21,9 +21,15 @@ if __name__ == '__main__':
     # main(image_name=file_name, is_image=True)
     # file_name = 'test_images/test3.jpg'
     # main(image_name=file_name, is_image=True)
-    file_name = 'test_images/test4.jpg'
-    main(image_name=file_name, is_image=True)
-    file_name = 'test_images/test5.jpg'
-    main(image_name=file_name, is_image=True)
+    # file_name = 'test_images/test4.jpg'
+    # main(image_name=file_name, is_image=True)
+    # file_name = 'test_images/test5.jpg'
+    # main(image_name=file_name, is_image=True)
     # file_name = 'test_images/test6.jpg'
     # main(image_name=file_name, is_image=True)
+    # file_name = 'project_video.mp4'
+    # main(file_name, is_image=False)
+    # file_name = 'challenge_video.mp4'
+    # main(file_name, is_image=False)
+    file_name = 'harder_challenge_video.mp4'
+    main(file_name, is_image=False)
