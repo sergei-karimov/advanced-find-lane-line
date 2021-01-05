@@ -1,4 +1,5 @@
 import sys
+import os
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,6 +9,8 @@ from numpy.linalg import linalg
 class ImageProcessing(object):
     acc = 0
     frame = None
+    mtx = None
+    dist = None
 
     @classmethod
     def invoke(cls, file_name, debug=False):
@@ -19,9 +22,21 @@ class ImageProcessing(object):
             cls.acc += 1
             print(f"Frame number: {cls.acc}")
             cls.frame = file_name
+            if cls.acc == 14:
+                img = cv2.cvtColor(cls.frame, cv2.COLOR_BGR2RGB)
+                cv2.imwrite(f'frame_n_{cls.acc}.jpg', img)
+
+        # Calibrate
+        if cls.mtx is None:
+            cls.mtx, cls.dist = cls.camera_calibration('camera_cal')
+
+        # Perspective transformation
+        undistorted_image = cls.undistort_image(cls.frame)
+        if debug:
+            cls.show(undistorted_image, 'Undistorted image')
 
         # convert given image to HSL image
-        hls_image = cls.to_hls(cls.frame)
+        hls_image = cls.to_hls(undistorted_image)
         if debug:
             cls.show(hls_image, "HLS image")
 
@@ -44,10 +59,10 @@ class ImageProcessing(object):
         # Region of interest
         roi = np.array(
             [
-                [width_image * 0.1, height_image],
-                [width_image * 0.457, height_image * 0.635],
-                [width_image * 0.586, height_image * 0.635],
-                [width_image * 0.95, height_image]
+                [width_image * 0.19, height_image],
+                [width_image * 0.48, height_image * 0.635],
+                [width_image * 0.57, height_image * 0.635],
+                [width_image * 0.91, height_image]
             ],
             np.int32
         )
@@ -137,19 +152,6 @@ class ImageProcessing(object):
         isolated_image = cv2.bitwise_and(image, image, mask=mask)
         return isolated_image
 
-    # @classmethod
-    # def apply_gaussian_blur(cls, image):
-    #     kernel_size = 15
-    #     blurred_image = cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
-    #     return blurred_image
-    #
-    # @classmethod
-    # def apply_canny_edge(cls, image):
-    #     low_threshold = 50
-    #     high_threshold = 150
-    #     edged_image = cv2.Canny(image, low_threshold, high_threshold)
-    #     return edged_image
-
     @classmethod
     def get_selected_image(cls, image, vertices):
         mask = np.zeros_like(image)
@@ -204,10 +206,10 @@ class ImageProcessing(object):
             height_image = image_size[1]
             src = np.float32(
                 [
-                    [width_image * 0.1, height_image],
-                    [width_image * 0.457, height_image * 0.635],
-                    [width_image * 0.586, height_image * 0.635],
-                    [width_image * 0.95, height_image]
+                    [width_image * 0.19, height_image],
+                    [width_image * 0.48, height_image * 0.635],
+                    [width_image * 0.57, height_image * 0.635],
+                    [width_image * 0.91, height_image]
                 ]
             )
             offset = width_image * 0.01
@@ -421,3 +423,42 @@ class ImageProcessing(object):
         cv2.line(image, right_line[0], right_line[1], color, thickness)
 
         return image
+
+    @classmethod
+    def undistort_image(cls, image):
+        return cv2.undistort(image, cls.mtx, cls.dist, None, cls.mtx)
+
+    @classmethod
+    def camera_calibration(cls, directory_name):
+        calibration_pics_loc = os.listdir(directory_name)
+        calibration_images = []
+
+        for i in calibration_pics_loc:
+            i = f'{directory_name}/{i}'
+            image = cv2.imread(i)
+            calibration_images.append(image)
+
+        # Prepare object points
+        objp = np.zeros((6 * 9, 3), np.float32)
+        objp[:, :2] = np.mgrid[0:9, 0:6].T.reshape(-1, 2)
+
+        # Arrays for later storing object points and image points
+        objpoints = []
+        imgpoints = []
+
+        for image in calibration_images:
+
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+            ret, corners = cv2.findChessboardCorners(gray, (9, 6), None)
+
+            if ret == True:
+                objpoints.append(objp)
+                imgpoints.append(corners)
+
+                cv2.drawChessboardCorners(image, (9, 6), corners, ret)
+
+        # Get undistortion info and undistort
+        ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+
+        return mtx, dist

@@ -29,7 +29,7 @@ if __name__ == '__main__':
     # main(image_name=file_name, is_image=True)
     # file_name = 'project_video.mp4'
     # main(file_name, is_image=False)
-    # file_name = 'challenge_video.mp4'
-    # main(file_name, is_image=False)
-    file_name = 'harder_challenge_video.mp4'
+    file_name = 'challenge_video.mp4'
     main(file_name, is_image=False)
+    # file_name = 'harder_challenge_video.mp4'
+    # main(file_name, is_image=False)

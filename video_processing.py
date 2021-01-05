@@ -8,5 +8,5 @@ def video_processing(file_name):
     image_processing = ImageProcessing.invoke
 
     clip1 = VideoFileClip(file_name)
-    white_clip = clip1.fl_image(image_processing)  # NOTE: this function expects color images!!
+    white_clip = clip1.fl_image(image_processing)
     white_clip.write_videofile(video_output, audio=False)
