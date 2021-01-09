@@ -11,6 +11,8 @@ def main(image_name, is_image):
 
 
 if __name__ == '__main__':
+    # file_name = 'frame_n_1334.jpg'
+    # main(image_name=file_name, is_image=True)
     # file_name = 'test_images/straight_lines1.jpg'
     # main(image_name=file_name, is_image=True)
     # file_name = 'test_images/straight_lines2.jpg'
@@ -29,7 +31,7 @@ if __name__ == '__main__':
     # main(image_name=file_name, is_image=True)
     # file_name = 'project_video.mp4'
     # main(file_name, is_image=False)
-    file_name = 'challenge_video.mp4'
-    main(file_name, is_image=False)
-    # file_name = 'harder_challenge_video.mp4'
+    # file_name = 'challenge_video.mp4'
     # main(file_name, is_image=False)
+    file_name = 'harder_challenge_video.mp4'
+    main(file_name, is_image=False)

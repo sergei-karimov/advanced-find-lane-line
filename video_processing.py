@@ -3,7 +3,7 @@ from image_processing import ImageProcessing
 
 
 def video_processing(file_name):
-    video_output = file_name[:-4] + "_result.mp4"
+    video_output = "output_videos/" + file_name[:-4] + "_result.mp4"
 
     image_processing = ImageProcessing.invoke
 

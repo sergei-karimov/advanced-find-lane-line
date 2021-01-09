@@ -59,10 +59,10 @@ class ImageProcessing(object):
         # Region of interest
         roi = np.array(
             [
-                [width_image * 0.19, height_image],
-                [width_image * 0.48, height_image * 0.635],
+                [width_image * 0.10, height_image],
+                [width_image * 0.43, height_image * 0.635],
                 [width_image * 0.57, height_image * 0.635],
-                [width_image * 0.91, height_image]
+                [width_image * 0.90, height_image]
             ],
             np.int32
         )
@@ -83,7 +83,7 @@ class ImageProcessing(object):
             cls.show(warped_image, "Warped image", True)
 
         # Find lanes
-        left_lane, right_lane, out_image = cls.find_lanes(warped_image)
+        left_lane, right_lane, center, left_curve_rad, right_curve_rad, out_image = cls.find_lanes(warped_image)
         if debug:
             cls.show(out_image, 'Out image', True)
 
@@ -91,7 +91,7 @@ class ImageProcessing(object):
             return cls.frame
 
         # Draw segments of roads
-        result = cls.draw_segment_of_road(cls.frame, Minv, left_lane, right_lane)
+        result = cls.draw_segment_of_road(cls.frame, Minv, left_lane, right_lane, center, left_curve_rad, right_curve_rad)
         if debug:
             cls.show(result, "Результат")
 
@@ -206,13 +206,13 @@ class ImageProcessing(object):
             height_image = image_size[1]
             src = np.float32(
                 [
-                    [width_image * 0.19, height_image],
-                    [width_image * 0.48, height_image * 0.635],
+                    [width_image * 0.10, height_image],
+                    [width_image * 0.43, height_image * 0.635],
                     [width_image * 0.57, height_image * 0.635],
-                    [width_image * 0.91, height_image]
+                    [width_image * 0.90, height_image]
                 ]
             )
-            offset = width_image * 0.01
+            offset = width_image * 0.10
             dst = np.float32(
                 [
                     [offset, image_size[1]],  # xl:yb
@@ -252,13 +252,13 @@ class ImageProcessing(object):
 
         # Define conversions in x and y from pixels space to meters
         y_px = 30 / 720  # meters per pixel in y dimension
-        x_px = 3.7 / 720  # meters per pixel in x dimension
+        x_px = 3.7 / 700  # meters per pixel in x dimension
 
         histogram = np.sum(image[image.shape[0] // 2:, :], axis=0)
         out_image = np.dstack((image, image, image)) * 255
         midpoint = np.int(histogram.shape[0] / 2)
-        left_base = np.argmax(histogram[:midpoint])
-        right_base = np.argmax(histogram[midpoint:]) + midpoint
+        left_base = np.argmax(histogram[:midpoint - 150])
+        right_base = np.argmax(histogram[midpoint + 150:]) + midpoint + 150
         window_height = np.int(image.shape[0] / count_of_windows)
         non_zero = image.nonzero()
         non_zero_y = np.array(non_zero[0])
@@ -277,10 +277,6 @@ class ImageProcessing(object):
             win_xleft_high = current_left + margin
             win_xright_low = current_right - margin
             win_xright_high = current_right + margin
-
-            # Draw the windows on the visualization image
-            cv2.rectangle(out_image, (win_xleft_low, win_y_low), (win_xleft_high, win_y_high), (0, 255, 0), 2)
-            cv2.rectangle(out_image, (win_xright_low, win_y_low), (win_xright_high, win_y_high), (0, 255, 0), 2)
 
             # Identify the nonzero pixels in x and y within the window
             good_left_idx = ((non_zero_y >= win_y_low) & (non_zero_y < win_y_high) & (non_zero_x >= win_xleft_low) & (
@@ -312,15 +308,21 @@ class ImageProcessing(object):
         try:
             left_fit = np.polyfit(left_y, left_x, 2)
             right_fit = np.polyfit(right_y, right_x, 2)
-            return left_fit, right_fit, out_image
+            center = abs(640 - ((left_base + right_base) / 2))
+            left_curve_rad = ((1 + (2 * left_fit[0] * np.max(left_y) + left_fit[1]) ** 2) ** 1.5) \
+                             / np.absolute(2 * left_fit[0])
+            right_curve_rad = ((1 + (2 * right_fit[0] * np.max(left_y) + right_fit[1]) ** 2) ** 1.5) \
+                              / np.absolute(2 * right_fit[0])
+
+            return left_fit, right_fit, center, left_curve_rad, right_curve_rad, out_image
         except:
             img = cv2.cvtColor(cls.frame, cv2.COLOR_BGR2RGB)
             cv2.imwrite(f'frame_n_{cls.acc}.jpg', img)
 
-        return None, None, None
+        return None, None, None, None, None, None
 
     @classmethod
-    def draw_segment_of_road(cls, image, Minv, left_lane, right_lane):
+    def draw_segment_of_road(cls, image, Minv, left_lane, right_lane, center, left_curve_rad, right_curve_rad):
         y = image.shape[0]
         plot_y = np.linspace(0, y - 1, y)
         color_warp = np.zeros_like(image).astype(np.uint8)
@@ -339,7 +341,15 @@ class ImageProcessing(object):
 
         # Warp the blank back to original image space using inverse perspective matrix (Minv)
         warped_image = cv2.warpPerspective(color_warp, Minv, (image.shape[1], image.shape[0]))
-        return cv2.addWeighted(image, 1, warped_image, 0.3, 0)
+        combined_image = cv2.addWeighted(image, 1, warped_image, 0.3, 0)
+
+        if center < 640:
+            cv2.putText(combined_image, f'Vehicle is {center * 3.7 / 700:.2f} m left of center', (200, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (209, 80, 0, 255), 3)
+        else:
+            cv2.putText(combined_image, f'Vehicle is {center * 3.7 / 700:.2f} m right of center', (200, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (209, 80, 0, 255), 3)
+        cv2.putText(combined_image, f'Radius of curvature is {int((left_curve_rad + right_curve_rad) / 2)} m right of center', (200, 170), cv2.FONT_HERSHEY_SIMPLEX, 1, (209, 80, 0, 255), 3)
+
+        return combined_image
 
     @classmethod
     def hough_lines(cls, image):
