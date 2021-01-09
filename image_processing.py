@@ -95,6 +95,8 @@ class ImageProcessing(object):
         if debug:
             cls.show(result, "Результат")
 
+        result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
+        cv2.imwrite('result_images/result.jpg', result)
         return result
 
     @classmethod
