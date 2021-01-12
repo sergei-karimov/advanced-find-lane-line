@@ -140,3 +140,6 @@ Given 2 groups of pixels (left and right lane line candidate pixels), fit a 2nd 
 
 ![Result](result_images/result_image.jpg)
 10. *Result image*
+
+# Conclusion
+This is an initial version of advanced computer-vision-based lane finding. There are multiple scenarios where this lane finder would not work. For example, the Udacity challenge video includes roads with cracks which could be mistaken as lane lines (see 'challenge_video.mp4'). Also, it is possible that other vehicles in front would trick the lane finder into thinking it was part of the lane. More work can be done to make the lane detector more robust, e.g. deep-learning-based semantic segmentation to find pixels that are likely to be lane markers (then performing polyfit on only those pixels)
