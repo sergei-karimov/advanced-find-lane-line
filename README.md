@@ -43,7 +43,7 @@ Load image from disk.
 ### 2. Calibrate camera
 Have the camera matrix and distortion coefficients been computed correctly and checked on one of the calibration images as a test?
 The code for this step is contained in:
-```python
+```
     def camera_calibration(cls, directory_name):
         calibration_pics_loc = os.listdir(directory_name)
         calibration_images = []
@@ -104,8 +104,39 @@ Both the white and yellow lines are clearly recognizable.
 5. *Isolated image*
 
 ### 6. Convert image to grayscale
+The images should be converted into gray scaled ones in order to transform to binary image.
+Here, I’m converting the white and yellow line images from the above into gray scale for edge detection.
+
+![GrayScale image](result_images/grayScale_image.jpg)
+6. *Gray Scale image*
+
 ### 7. Select region of interest
+In case of finding lane lines, it might make sense to apply operations only to a portion of an image. Thus, it is important to extract a region of interest of an original image.
+
+![RoI image](result_images/roi_image.jpg)
+7. Region of Interest image
+
 ### 8. Trace region of interest and discard all other lines identified by our previous step
+
+![Selected image](result_images/selected_image.jpg)
+8. *Selected image*
+
 ### 9. Apply a perspective transform to rectify binary image
+Given the thresholded binary image, the next step is to perform a perspective transform. The goal is to transform the image such that we get a "bird's eye view" of the lane, which enables us to fit a curved line to the lane lines (e.g. polynomial fit). Another thing this accomplishes is to "crop" an area of the original image that is most likely to have the lane line pixels.
+
+To accomplish the perspective transform, I use OpenCV's getPerspectiveTransform() and warpPerspective() functions. I hard-code the source and destination points for the perspective transform. The source and destination points were visually determined by manual inspection, although an important enhancement would be to algorithmically determine these points.
+![Warped image](result_images/warped_image.jpg)
+9. *Warped image*
+
 ### 10. Find lanes
+Given the warped binary image from the previous step, I now fit a 2nd order polynomial to both left and right lane lines. In particular, I perform the following:
+
+Calculate a histogram of the bottom half of the image
+Partition the image into 9 horizontal slices
+Starting from the bottom slice, enclose a 200 pixel wide window around the left peak and right peak of the histogram (split the histogram in half vertically)
+Go up the horizontal window slices to find pixels that are likely to be part of the left and right lanes, recentering the sliding windows opportunistically
+Given 2 groups of pixels (left and right lane line candidate pixels), fit a 2nd order polynomial to each group, which represents the estimated left and right lane lines
 ### 11. Draw segments of roads and road info
+
+![Result](result_images/result_image.jpg)
+10. *Result image*
