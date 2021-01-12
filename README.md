@@ -1,7 +1,7 @@
 # Advanced Find Lane Line project
 
 ![result image](result_images/result.jpg)
-1. **result image**
+1. *result image*
 
 ## Introduction
 > This is Advanced lane finding project of Udacity's Self-Driving Car Engineering Nanodegree. We already completed lane finding project in the first project. In that project, we could find lane lines and made robust algorighm for shadow and some of occlusion. It might be enough in the straight highway. But there are many curve lines in the road and that's why we need to detect curve lanes. In this project we'll find lane lines more specifically with computer vision.
@@ -35,12 +35,70 @@
 - Draw segments of roads and road info
 
 ### 1. Load image
+Load image from disk.
+
+![given image](result_images/given_image.jpg)
+2. *given image*
+
 ### 2. Calibrate camera
+Have the camera matrix and distortion coefficients been computed correctly and checked on one of the calibration images as a test?
+The code for this step is contained in:
+```python
+    def camera_calibration(cls, directory_name):
+        calibration_pics_loc = os.listdir(directory_name)
+        calibration_images = []
+
+        for i in calibration_pics_loc:
+            i = f'{directory_name}/{i}'
+            image = cv2.imread(i)
+            calibration_images.append(image)
+
+        # Prepare object points
+        objp = np.zeros((6 * 9, 3), np.float32)
+        objp[:, :2] = np.mgrid[0:9, 0:6].T.reshape(-1, 2)
+
+        # Arrays for later storing object points and image points
+        objpoints = []
+        imgpoints = []
+
+        for image in calibration_images:
+
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+            ret, corners = cv2.findChessboardCorners(gray, (9, 6), None)
+
+            if ret == True:
+                objpoints.append(objp)
+                imgpoints.append(corners)
+
+                cv2.drawChessboardCorners(image, (9, 6), corners, ret)
+
+        # Get undistortion info and undistort
+        ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+
+        return mtx, dist
+```
+This script loads calibration images of chessboards taken at different angles. Each image is grayscaled and sent into cv2.drawChessboardCorners. The resulting "objpoints" are the (x, y, z) coordinates of the chessboard corners in the world.
+
+Finally the corner points are sent to cv2.calibrateCamera to get resulting image points and object points. This dictionary is then saved for reuse in undistorted other images in the pipeline.
+
 ### 3. Perspective transform
-Perspective Transform is a feature that is very useful if you want to align the image properly . It transform the image in a straight manner after Perspective Transformation is applied to it.
+Perspective Transform is a feature that is very useful if you want to align the image properly . It transforms the image in a straight manner after Perspective Transformation is applied to it.
 We can assume the road is a flat plane. We take 4 points of straight of lane lines and put to respective transform function. As a result we get Bird's eye view.
+
+![undistorted image](result_images/undistorted_image.jpg)
+3. *undistorted image*
+
 ### 4. Convert given image to HSL image
+
+![HLS image](result_images/hls_image.jpg)
+4. *HLS image*
+
 ### 5. Isolate yellow and white color from HSL image
+
+![isolated image](result_images/isolated_image.jpg)
+5. *Isolated image*
+
 ### 6. Convert image to grayscale
 ### 7. Select region of interest
 ### 8. Trace region of interest and discard all other lines identified by our previous step
