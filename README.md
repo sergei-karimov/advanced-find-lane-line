@@ -90,11 +90,15 @@ We can assume the road is a flat plane. We take 4 points of straight of lane lin
 3. *undistorted image*
 
 ### 4. Convert given image to HSL image
+How does it look like when images are converted from RGB to HSL color space?
 
 ![HLS image](result_images/hls_image.jpg)
 4. *HLS image*
 
 ### 5. Isolate yellow and white color from HSL image
+Let’s build a filter to select those white and yellow lines. I want to select particular range of each channels (Hue, Saturation and Light).
+
+Both the white and yellow lines are clearly recognizable.
 
 ![isolated image](result_images/isolated_image.jpg)
 5. *Isolated image*
