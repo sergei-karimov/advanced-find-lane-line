@@ -22,9 +22,6 @@ class ImageProcessing(object):
             cls.acc += 1
             print(f"Frame number: {cls.acc}")
             cls.frame = file_name
-            if cls.acc == 14:
-                img = cv2.cvtColor(cls.frame, cv2.COLOR_BGR2RGB)
-                cv2.imwrite(f'frame_n_{cls.acc}.jpg', img)
 
         # Calibrate
         if cls.mtx is None:
@@ -34,11 +31,13 @@ class ImageProcessing(object):
         undistorted_image = cls.undistort_image(cls.frame)
         if debug:
             cls.show(undistorted_image, 'Undistorted image')
+            cls.save_image(undistorted_image, 'гndistorted_image')
 
         # convert given image to HSL image
         hls_image = cls.to_hls(undistorted_image)
         if debug:
             cls.show(hls_image, "HLS image")
+            cls.save_image(hls_image, "hls_image")
 
         # isolate yellow and white color from HSL image
         white_mask = cls.get_isolated_white_mask(hls_image)
@@ -47,11 +46,13 @@ class ImageProcessing(object):
 
         if debug:
             cls.show(isolated_image, "Isolated image")
+            cls.save_image(isolated_image, "isolated_image")
 
         # convert image to grayscale
         gray_image = cls.to_gray_scale(isolated_image)
         if debug:
             cls.show(gray_image, "GrayScale image", True)
+            cls.save_image(gray_image, "grayScale_image", True)
 
         # get image size
         height_image, width_image, _ = cls.frame.shape
@@ -71,21 +72,25 @@ class ImageProcessing(object):
         tmp = cls.draw_roi(copy, roi)
         if debug:
             cls.show(tmp, "TMP")
+            cls.save_image(tmp, "roi_image")
 
         # Trace Region of Interest and discard all other lines identified by our previous step
         selected_image = cls.get_selected_image(gray_image, roi)
         if debug:
-            cls.show(selected_image, "ROI image", True)
+            cls.show(selected_image, "Selected image", True)
+            cls.save_image(selected_image, 'selected_image', True)
 
         # Apply a perspective transform to rectify binary image
         warped_image, M, Minv = cls.to_warped_image(selected_image)
         if debug:
             cls.show(warped_image, "Warped image", True)
+            cls.save_image(warped_image, "warped_image", True)
 
         # Find lanes
         left_lane, right_lane, center, left_curve_rad, right_curve_rad, out_image = cls.find_lanes(warped_image)
         if debug:
             cls.show(out_image, 'Out image', True)
+            cls.save_image(out_image, 'out_image', True)
 
         if left_lane is None or right_lane is None:
             return cls.frame
@@ -93,8 +98,16 @@ class ImageProcessing(object):
         # Draw segments of roads
         result = cls.draw_segment_of_road(cls.frame, Minv, left_lane, right_lane, center, left_curve_rad, right_curve_rad)
         if debug:
-            cls.show(result, "Результат")
+            cls.show(result, "Result image")
+            cls.save_image(result, "result_image")
 
+        return result
+
+    @classmethod
+    def save_image(cls, result, file_name, is_gray=False):
+        if not is_gray:
+            result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
+        cv2.imwrite(f'result_images/{file_name}.jpg', result)
         return result
 
     @classmethod
