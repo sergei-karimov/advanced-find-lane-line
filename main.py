@@ -44,30 +44,3 @@ if __name__ == '__main__':
         main(file_name=file_name, is_image=is_image)
     except Exception as ex:
         print(f"File {file_name} not found. ({ex})")
-
-    # file_name = 'result_images/frame_n_557.jpg'
-    # main(image_name=file_name, is_image=True)
-    # file_name = 'result_images/frame_n_785.jpg'
-    # main(image_name=file_name, is_image=True)
-    # file_name = 'test_images/straight_lines1.jpg'
-    # main(image_name=file_name, is_image=True)
-    # file_name = 'test_images/straight_lines2.jpg'
-    # main(image_name=file_name, is_image=True)
-    # file_name = 'test_images/test1.jpg'
-    # main(image_name=file_name, is_image=True)
-    # file_name = 'test_images/test2.jpg'
-    # main(image_name=file_name, is_image=True)
-    # file_name = 'test_images/test3.jpg'
-    # main(image_name=file_name, is_image=True)
-    # file_name = 'test_images/test4.jpg'
-    # main(image_name=file_name, is_image=True)
-    # file_name = 'test_images/test5.jpg'
-    # main(image_name=file_name, is_image=True)
-    # file_name = 'test_images/test6.jpg'
-    # main(image_name=file_name, is_image=True)
-    # file_name = 'project_video.mp4'
-    # main(file_name, is_image=False)
-    # file_name = 'challenge_video.mp4'
-    # main(file_name, is_image=False)
-    # file_name = 'harder_challenge_video.mp4'
-    # main(file_name, is_image=False)

@@ -358,7 +358,7 @@ class ImageProcessing(object):
         warped_image = cv2.warpPerspective(color_warp, Minv, (image.shape[1], image.shape[0]))
         combined_image = cv2.addWeighted(image, 1, warped_image, 0.3, 0)
 
-        cv2.putText(combined_image, f'frame: {cls.acc}', (200, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (209, 80, 0, 255), 3)
+        # cv2.putText(combined_image, f'frame: {cls.acc}', (200, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (209, 80, 0, 255), 3)
         if center < 640:
             cv2.putText(
                 combined_image,
