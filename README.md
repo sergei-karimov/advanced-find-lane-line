@@ -11,6 +11,15 @@
 - [main.py](main.py) to do main work
 - [image_processing.py](image_processing.py) to process the single image
 - [video_processing.py](video_processing.py) to process the fideo file
+
+## Usage
+#### usage: python3 main.py TYPE FILE_NAME
+
+#### optional arguments:
+- -h, --help  show this help message and exit 
+- -i, --image IMAGE_FILE_NAME
+- -v, --video VIDEO_FILE_NAME
+
 ## The goal / steps of this project are the following:
 - Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
 - Apply a distortion correction to raw images.
