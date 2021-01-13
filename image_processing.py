@@ -21,8 +21,8 @@ class ImageProcessing(object):
         else:
             cls.acc += 1
             print(f"Frame number: {cls.acc}")
-            # if cls.acc in [557]:
-            #     cls.save_image(file_name, f"frame_n_{cls.acc}")
+            if cls.acc in [59]:
+                cls.save_image(file_name, f"frame_n_{cls.acc}")
             cls.frame = file_name
 
         # Calibrate
