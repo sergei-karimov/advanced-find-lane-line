@@ -21,6 +21,8 @@ class ImageProcessing(object):
         else:
             cls.acc += 1
             print(f"Frame number: {cls.acc}")
+            # if cls.acc in [557]:
+            #     cls.save_image(file_name, f"frame_n_{cls.acc}")
             cls.frame = file_name
 
         # Calibrate
@@ -31,7 +33,7 @@ class ImageProcessing(object):
         undistorted_image = cls.undistort_image(cls.frame)
         if debug:
             cls.show(undistorted_image, 'Undistorted image')
-            cls.save_image(undistorted_image, 'гndistorted_image')
+            cls.save_image(undistorted_image, 'undistorted_image')
 
         # convert given image to HSL image
         hls_image = cls.to_hls(undistorted_image)
@@ -60,10 +62,10 @@ class ImageProcessing(object):
         # Region of interest
         roi = np.array(
             [
-                [width_image * 0.10, height_image],
-                [width_image * 0.43, height_image * 0.635],
-                [width_image * 0.57, height_image * 0.635],
-                [width_image * 0.90, height_image]
+                [width_image * 0.01, height_image],
+                [width_image * 0.465, height_image * 0.608],
+                [width_image * 0.55, height_image * 0.608],
+                [width_image * 0.99, height_image]
             ],
             np.int32
         )
@@ -113,7 +115,7 @@ class ImageProcessing(object):
     @classmethod
     def show(cls, image, title, is_gray=False):
         if is_gray:
-            plt.imshow(image, cmap="Greys_r")
+            plt.imshow(image, cmap="gray")
         else:
             plt.imshow(image)
         plt.title(title)
@@ -126,7 +128,7 @@ class ImageProcessing(object):
 
     @classmethod
     def get_isolated_white_mask(cls, image):
-        # isolate white color
+        # # isolate white color
         l_channel = image[:, :, 1]
 
         # Sobel x
@@ -219,13 +221,13 @@ class ImageProcessing(object):
             height_image = image_size[1]
             src = np.float32(
                 [
-                    [width_image * 0.10, height_image],
-                    [width_image * 0.43, height_image * 0.635],
-                    [width_image * 0.57, height_image * 0.635],
-                    [width_image * 0.90, height_image]
+                    [301, 720],
+                    [616, 454],
+                    [735, 454],
+                    [1244, 720]
                 ]
             )
-            offset = width_image * 0.10
+            offset = 301
             dst = np.float32(
                 [
                     [offset, image_size[1]],  # xl:yb
@@ -356,11 +358,35 @@ class ImageProcessing(object):
         warped_image = cv2.warpPerspective(color_warp, Minv, (image.shape[1], image.shape[0]))
         combined_image = cv2.addWeighted(image, 1, warped_image, 0.3, 0)
 
+        # cv2.putText(combined_image, f'frame: {cls.acc}', (200, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (209, 80, 0, 255), 3)
         if center < 640:
-            cv2.putText(combined_image, f'Vehicle is {center * 3.7 / 700:.2f} m left of center', (200, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (209, 80, 0, 255), 3)
+            cv2.putText(
+                combined_image,
+                f'Vehicle is {center * 3.7 / 700:.2f} m left of center',
+                (200, 100),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (209, 80, 0, 255),
+                3
+            )
         else:
-            cv2.putText(combined_image, f'Vehicle is {center * 3.7 / 700:.2f} m right of center', (200, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (209, 80, 0, 255), 3)
-        cv2.putText(combined_image, f'Radius of curvature is {int((left_curve_rad + right_curve_rad) / 2)} m right of center', (200, 170), cv2.FONT_HERSHEY_SIMPLEX, 1, (209, 80, 0, 255), 3)
+            cv2.putText(
+                combined_image,
+                f'Vehicle is {center * 3.7 / 700:.2f} m right of center',
+                (200, 100),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (209, 80, 0, 255),
+            )
+        cv2.putText(
+            combined_image,
+            f'Radius of curvature is {int((left_curve_rad + right_curve_rad) / 2)}m right of center',
+            (200, 170),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,
+            (209, 80, 0, 255),
+            3
+        )
 
         return combined_image
 
